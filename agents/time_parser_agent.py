@@ -1,3 +1,5 @@
+# This is the time parser agent that will convert a natural language time input to a number of days
+
 from openai import OpenAI
 from dotenv import load_dotenv
 import os

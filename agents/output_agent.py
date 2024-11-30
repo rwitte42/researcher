@@ -1,3 +1,5 @@
+# This is the output agent that will write the results to a Markdown file
+
 import os
 from config.config import OUTPUT_DIR
 

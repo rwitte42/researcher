@@ -1,3 +1,5 @@
+# This is the manager agent that will handle the interaction with the user
+
 from agents.time_parser_agent import TimeParserAgent
 from agents.research_agent import ResearchAgent
 from agents.output_agent import OutputAgent  # Import the OutputAgent

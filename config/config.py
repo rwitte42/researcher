@@ -1,3 +1,5 @@
+# This is the configuration file for the project
+
 from datetime import datetime, timedelta
 import os
 

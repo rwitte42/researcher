@@ -1,3 +1,5 @@
+# This is the utility script to select the LLM
+
 import os
 from config.llm_list import LLM_OPTIONS
 from config.config import OPENAI_MODEL

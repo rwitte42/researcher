@@ -1,3 +1,5 @@
+# This is the research agent that will search for articles and summarize them
+
 from openai import OpenAI
 import os
 from datetime import datetime, timedelta

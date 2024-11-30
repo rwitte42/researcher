@@ -1,3 +1,5 @@
+# This is the main script that will run the research agent
+
 from agents.time_parser_agent import TimeParserAgent
 from agents.research_agent import ResearchAgent
 from config.config import OUTPUT_DIR, OPENAI_MODEL
