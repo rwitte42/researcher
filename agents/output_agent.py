@@ -14,6 +14,7 @@ class OutputAgent:
         swarm.subscribe('results_ready', self.handle_results_ready)
 
     def handle_results_ready(self, data):
+        #Define results and output path variables
         results = data.get('results')
         output_path = self.write_results_to_md(results)
         
@@ -41,8 +42,6 @@ Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
             # Save to file
             with open(filename, 'w', encoding='utf-8') as f:
                 f.write(header + results)
-            
-            logger.info(f"Research results saved to {filename}")
             return filename  # Return the filename for confirmation
         except Exception as e:
             logger.error(f"Error writing results to file: {str(e)}")

@@ -36,8 +36,11 @@ class ResearchAgent:
         days_back = data.get('days_back')
         logger.info(f"Received research request for '{query}' over {days_back} days.")
         results = self.perform_research(query, days_back)
+        
         # Publish research_completed event
+        print(f"Research completed for '{query}' over {days_back} days.")
         swarm.publish('research_completed', {'results': results})
+
 
     def format_date_range(self):
         end_date = datetime.now()
