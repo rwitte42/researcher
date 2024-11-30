@@ -1,6 +1,7 @@
 from agents.time_parser_agent import TimeParserAgent
 from agents.research_agent import ResearchAgent
-from config import OUTPUT_DIR
+from config import OUTPUT_DIR, OPENAI_MODEL
+import openai
 
 def get_valid_days():
     parser = TimeParserAgent()
