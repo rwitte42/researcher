@@ -1,5 +1,5 @@
 import os
-from config import OUTPUT_DIR
+from config.config import OUTPUT_DIR
 
 class OutputAgent:
     def __init__(self):

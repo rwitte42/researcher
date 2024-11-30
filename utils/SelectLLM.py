@@ -1,6 +1,6 @@
 import os
-from llm_list import LLM_OPTIONS
-from config import OPENAI_MODEL
+from config.llm_list import LLM_OPTIONS
+from config.config import OPENAI_MODEL
 
 def display_llm_options():
     print("Available LLMs:")

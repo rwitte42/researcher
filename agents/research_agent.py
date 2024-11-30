@@ -2,7 +2,7 @@ from openai import OpenAI
 import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-from config import DAYS_BACK, MAX_ARTICLES, OUTPUT_DIR
+from config.config import DAYS_BACK, MAX_ARTICLES, OUTPUT_DIR
 import requests
 
 class ResearchAgent:
