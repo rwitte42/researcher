@@ -1,12 +1,15 @@
 # This is the research agent that will search for articles and summarize them
 
-from openai import OpenAI
+import logging
 import os
+import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from openai import OpenAI
 from config.config import DAYS_BACK, MAX_ARTICLES, OUTPUT_DIR
-import requests
 from utils.swarm import swarm  # Import the Swarm orchestrator
+
+logger = logging.getLogger(__name__)
 
 class ResearchAgent:
     def __init__(self):
@@ -15,8 +18,10 @@ class ResearchAgent:
         
         # Verify API keys exist
         if not os.getenv('OPENAI_API_KEY'):
+            logger.error("OPENAI_API_KEY not found in environment variables")
             raise ValueError("OPENAI_API_KEY not found in environment variables")
         if not os.getenv('BING_API_KEY'):
+            logger.error("BING_API_KEY not found in environment variables")
             raise ValueError("BING_API_KEY not found in environment variables")
             
         self.openai_client = OpenAI()
@@ -29,6 +34,7 @@ class ResearchAgent:
     def handle_research_request(self, data):
         query = data.get('query')
         days_back = data.get('days_back')
+        logger.info(f"Received research request for '{query}' over {days_back} days.")
         results = self.perform_research(query, days_back)
         # Publish research_completed event
         swarm.publish('research_completed', {'results': results})
@@ -44,7 +50,7 @@ class ResearchAgent:
             params = {
                 "q": topic,
                 "count": MAX_ARTICLES,
-                "freshness": f"Day",  # Can be: Day, Week, Month
+                "freshness": "Day",  # Can be: Day, Week, Month
                 "textFormat": "Raw",
                 "safeSearch": "Moderate"
             }
@@ -57,10 +63,11 @@ class ResearchAgent:
             response.raise_for_status()  # Raise an exception for bad status codes
             
             search_results = response.json()
+            logger.debug(f"Found {len(search_results.get('value', []))} articles for topic '{topic}'.")
             return search_results.get("value", [])
             
         except Exception as e:
-            print(f"Error searching articles: {str(e)}")
+            logger.error(f"Error searching articles: {str(e)}")
             return []
 
     def summarize_article(self, title, description, url):
@@ -72,21 +79,27 @@ class ResearchAgent:
         Keep the summary factual and concise.
         """
         
-        response = self.openai_client.chat.completions.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a helpful research assistant."},
-                {"role": "user", "content": prompt}
-            ]
-        )
-        
-        return response.choices[0].message.content
+        try:
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    {"role": "system", "content": "You are a helpful research assistant."},
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            summary = response.choices[0].message.content.strip()
+            logger.debug(f"Summarized article '{title}'.")
+            return summary
+        except Exception as e:
+            logger.error(f"Error summarizing article '{title}': {str(e)}")
+            return "Summary not available."
 
     def perform_research(self, query, days_back):
         # Perform the actual research
         articles = self.search_articles(query)
         
         if not articles:
+            logger.info("No recent articles found for this topic.")
             return "No recent articles found for this topic."
         
         # Process each article
@@ -100,8 +113,8 @@ class ResearchAgent:
             # Convert date to more readable format
             try:
                 date_obj = datetime.strptime(date_published, "%Y-%m-%dT%H:%M:%S.%fZ")
-                date_formatted = date_obj.strftime("%B %d, 2023")
-            except:
+                date_formatted = date_obj.strftime("%B %d, %Y")
+            except ValueError:
                 date_formatted = date_published
             
             # Get AI-generated summary
@@ -121,4 +134,5 @@ class ResearchAgent:
         # Combine all results
         final_results = "\n".join(research_results)
         
+        logger.info(f"Research completed for topic '{query}'.")
         return final_results

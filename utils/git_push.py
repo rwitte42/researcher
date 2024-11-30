@@ -1,12 +1,15 @@
 import os
 import subprocess
 
-def git_push_all(commit_message="Push all changes"):
+def git_push_all():
+    # Prompt for a descriptive commit message
+    commit_message = input("Enter a descriptive commit message: ")
+
     try:
         # Stage all changes
         subprocess.run(["git", "add", "."], check=True)
         
-        # Commit the changes
+        # Commit the changes with the provided message
         subprocess.run(["git", "commit", "-m", commit_message], check=True)
         
         # Push to the main branch
@@ -17,5 +20,4 @@ def git_push_all(commit_message="Push all changes"):
         print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
-    # You can customize the commit message here
-    git_push_all("Push all changes") 
+    git_push_all() 
