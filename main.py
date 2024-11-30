@@ -25,10 +25,7 @@ def get_valid_days():
             # If not a number, try to parse as a time period
             days, explanation = parser.get_days_back(time_input)
             print(f"\nInterpreted as {days} days ({explanation})")
-            
-            confirm = input("Is this correct? (y/n): ").lower().strip()
-            if confirm.startswith('y'):
-                return days
+            return days
             
         except ValueError as e:
             print(f"\nError: {str(e)}")
