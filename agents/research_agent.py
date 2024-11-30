@@ -12,6 +12,8 @@ from utils.swarm import swarm  # Import the Swarm orchestrator
 logger = logging.getLogger(__name__)
 
 class ResearchAgent:
+    _subscribed = False  # Class variable to track subscription
+
     def __init__(self):
         # Load environment variables
         load_dotenv()
@@ -28,10 +30,14 @@ class ResearchAgent:
         self.bing_endpoint = "https://api.bing.microsoft.com/v7.0/news/search"
         self.bing_headers = {"Ocp-Apim-Subscription-Key": os.getenv('BING_API_KEY')}
         
-        # Subscribe to research_request event
-        swarm.subscribe('research_request', self.handle_research_request)
+        # Subscribe to research_request event only once
+        if not ResearchAgent._subscribed:
+            swarm.subscribe('research_request', self.handle_research_request)
+            ResearchAgent._subscribed = True
+            logger.debug("Subscribed to 'research_request' event.")
 
     def handle_research_request(self, data):
+        logger.info("handle_research_request called with data: %s", data)
         query = data.get('query')
         days_back = data.get('days_back')
         logger.info(f"Received research request for '{query}' over {days_back} days.")

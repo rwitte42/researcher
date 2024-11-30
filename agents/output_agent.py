@@ -10,10 +10,12 @@ logger = logging.getLogger(__name__)
 
 class OutputAgent:
     def __init__(self):
+
         # Subscribe to results_ready event
         swarm.subscribe('results_ready', self.handle_results_ready)
 
     def handle_results_ready(self, data):
+        
         #Define results and output path variables
         results = data.get('results')
         output_path = self.write_results_to_md(results)

@@ -15,14 +15,20 @@ class ManagerAgent:
         self.research_agent = ResearchAgent() # Initialize the ResearchAgent
         self.output_agent = OutputAgent()  # Initialize the OutputAgent
         
+        # Log the swarm instance ID
+        logger.debug(f"ManagerAgent is using swarm instance ID: {id(swarm)}")
+
         # Subscribe to research_completed event
         swarm.subscribe('research_completed', self.handle_research_completed)
 
     def collect_input(self):
-        query_input = input("What research topic would you like to explore? ")  # Ask for topic
-        time_input = self.get_valid_days()  # Get valid days back to search
+        # Ask for topic
+        query_input = input("What research topic would you like to explore? ")
+
+        # Ask for the time frame
+        time_input = self.get_valid_days()  
         
-        # Display the number of days back to search
+        # Display the topic and time frame back to the user
         print(f"\nSearching for articles on '{query_input}' from the last {time_input} days.\n")  # Confirm search parameters
 
         return time_input, query_input
@@ -30,12 +36,13 @@ class ManagerAgent:
     def handle_interaction(self):
         # Display a friendly greeting
         print(f"Hi there! I'm here to assist you with your research. Just let me know the topic and the time frame, and I'll provide you with the results in a Markdown file.")
-        
+
+        # Collect the input from the user
         time_input, query_input = self.collect_input()
         
         # Publish a research_request event
-        print("Awaiting results...")  # Simple message indicating that results are being awaited
-        swarm.publish('research_request', {'query': query_input, 'days_back': time_input})
+        print("Awaiting results...") # Simple message back to the user indicating that results are being awaited
+        swarm.publish('research_request', {'query': query_input, 'days_back': time_input}) # Request the research from the research agent
 
     def get_valid_days(self):
         while True:
@@ -62,13 +69,15 @@ class ManagerAgent:
                 logger.info("Please try again with a different format.")
 
     def handle_research_completed(self, data):
+        # Get the results from the research agent
         results = data.get('results')
         
         # Publish a results_ready event
         swarm.publish('results_ready', {'results': results})
+        print("Results ready.")
 
         # Print a simple confirmation message
-        print("Output file written.")  # Confirmation message
+        print("Output file written.")
 
 # Example usage
 if __name__ == "__main__":
