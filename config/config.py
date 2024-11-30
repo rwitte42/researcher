@@ -9,4 +9,4 @@ MAX_ARTICLES = 10
 OUTPUT_DIR = os.path.expanduser("~/Desktop/research_results")  # This is the output directory
 
 # Update OpenAI model configuration
-OPENAI_MODEL = 'gpt-4o1-mini'
+OPENAI_MODEL = 'gpt-4'

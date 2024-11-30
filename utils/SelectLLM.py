@@ -1,6 +1,11 @@
 # This is the utility script to select the LLM
 
+import sys
 import os
+
+# Add the parent directory to the Python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config.llm_list import LLM_OPTIONS
 from config.config import OPENAI_MODEL
 
@@ -12,7 +17,7 @@ def display_llm_options():
 
 def update_config(selected_llm):
     # Update the config.py file with the selected LLM
-    config_file_path = 'config.py'
+    config_file_path = 'config/config.py'
     
     with open(config_file_path, 'r') as file:
         lines = file.readlines()
@@ -25,8 +30,8 @@ def update_config(selected_llm):
                 file.write(line)
 
 def main():
-    display_llm_options()
     while True:
+        display_llm_options()
         choice = input("Select an LLM by number or press Q to quit: ").strip().lower()
 
         if choice == 'q':
