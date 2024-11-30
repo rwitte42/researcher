@@ -15,7 +15,10 @@ class OutputAgent:
 
     def handle_results_ready(self, data):
         results = data.get('results')
-        self.write_results_to_md(results)
+        output_path = self.write_results_to_md(results)
+        
+        # Notify the ManagerAgent with the output path
+        swarm.publish('results_written', {'output_path': output_path})
 
     def write_results_to_md(self, results):
         try:
@@ -40,5 +43,7 @@ Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
                 f.write(header + results)
             
             logger.info(f"Research results saved to {filename}")
+            return filename  # Return the filename for confirmation
         except Exception as e:
-            logger.error(f"Error writing results to file: {str(e)}") 
+            logger.error(f"Error writing results to file: {str(e)}")
+            return None  # Return None if there was an error
