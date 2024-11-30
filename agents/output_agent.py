@@ -1,20 +1,37 @@
-# This is the output agent that will write the results to a Markdown file
+# This is the output agent that handles writing results to a Markdown file
 
 import os
+from datetime import datetime
 from config.config import OUTPUT_DIR
+from utils.swarm import swarm  # Import the Swarm orchestrator
 
 class OutputAgent:
     def __init__(self):
-        # Ensure the output directory exists
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        # Subscribe to results_ready event
+        swarm.subscribe('results_ready', self.handle_results_ready)
+
+    def handle_results_ready(self, data):
+        results = data.get('results')
+        self.write_results_to_md(results)
 
     def write_results_to_md(self, results):
-        # Define the output file path
-        output_file = os.path.join(OUTPUT_DIR, "research_results.md")
+        # Create output directory if it doesn't exist
+        if not os.path.exists(OUTPUT_DIR):
+            os.makedirs(OUTPUT_DIR)
+            
+        # Create filename with timestamp
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{OUTPUT_DIR}/research_results_{timestamp}.md"
         
-        # Write results to the Markdown file
-        with open(output_file, 'w') as f:
-            f.write("# Research Results\n\n")
-            f.write(results)
+        # Add header to the results
+        header = f"""# Research Results
+Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+---
+
+"""
+        # Save to file
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(header + results)
         
-        print(f"Results written to {output_file}") 
+        print(f"Research results saved to {filename}") 

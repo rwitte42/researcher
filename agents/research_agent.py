@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from config.config import DAYS_BACK, MAX_ARTICLES, OUTPUT_DIR
 import requests
+from utils.swarm import swarm  # Import the Swarm orchestrator
 
 class ResearchAgent:
     def __init__(self):
@@ -21,6 +22,16 @@ class ResearchAgent:
         self.openai_client = OpenAI()
         self.bing_endpoint = "https://api.bing.microsoft.com/v7.0/news/search"
         self.bing_headers = {"Ocp-Apim-Subscription-Key": os.getenv('BING_API_KEY')}
+        
+        # Subscribe to research_request event
+        swarm.subscribe('research_request', self.handle_research_request)
+
+    def handle_research_request(self, data):
+        query = data.get('query')
+        days_back = data.get('days_back')
+        results = self.perform_research(query, days_back)
+        # Publish research_completed event
+        swarm.publish('research_completed', {'results': results})
 
     def format_date_range(self):
         end_date = datetime.now()
@@ -71,12 +82,9 @@ class ResearchAgent:
         
         return response.choices[0].message.content
 
-    def research_topic(self, topic, days_back=7):
-        # Set the days_back value
-        self.days_back = days_back
-        
-        # Search for articles
-        articles = self.search_articles(topic)
+    def perform_research(self, query, days_back):
+        # Perform the actual research
+        articles = self.search_articles(query)
         
         if not articles:
             return "No recent articles found for this topic."
@@ -92,7 +100,7 @@ class ResearchAgent:
             # Convert date to more readable format
             try:
                 date_obj = datetime.strptime(date_published, "%Y-%m-%dT%H:%M:%S.%fZ")
-                date_formatted = date_obj.strftime("%B %d, %Y")
+                date_formatted = date_obj.strftime("%B %d, 2023")
             except:
                 date_formatted = date_published
             
@@ -113,30 +121,4 @@ class ResearchAgent:
         # Combine all results
         final_results = "\n".join(research_results)
         
-        # Save results
-        self.save_results(topic, final_results)
-        
         return final_results
-
-    def save_results(self, topic, results):
-        # Create output directory if it doesn't exist
-        if not os.path.exists(OUTPUT_DIR):
-            os.makedirs(OUTPUT_DIR)
-            
-        # Create filename with timestamp
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f"{OUTPUT_DIR}/{topic.replace(' ', '_')}_{timestamp}.md"
-        
-        # Add header to the results
-        header = f"""# Research Results: {topic}
-Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Time Period: Past {DAYS_BACK} days
-
----
-
-"""
-        # Save to file
-        with open(filename, 'w', encoding='utf-8') as f:
-            f.write(header + results)
-        
-        return filename 
