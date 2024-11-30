@@ -1,5 +1,5 @@
-from research_agent import ResearchAgent
-from time_parser_agent import TimeParserAgent
+from agents.time_parser_agent import TimeParserAgent
+from agents.research_agent import ResearchAgent
 
 def get_valid_days():
     parser = TimeParserAgent()
