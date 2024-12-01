@@ -1,0 +1,24 @@
+import subprocess
+
+def main():
+    # Ask the user for confirmation
+    confirmation = input("Are you sure you want to revert any uncommitted changes and pull the latest from Git? (yes/no): ").strip().lower()
+
+    if confirmation == 'yes':
+        try:
+            # Clear any pending changes
+            print("Reverting any uncommitted changes...")
+            subprocess.run(['git', 'checkout', '--', '.'], check=True)
+
+            # Pull the latest changes from the remote repository
+            print("Pulling the latest changes from the remote repository...")
+            subprocess.run(['git', 'pull'], check=True)
+
+            print("Done.")
+        except subprocess.CalledProcessError as e:
+            print(f"An error occurred: {e}")
+    else:
+        print("Operation canceled.")
+
+if __name__ == "__main__":
+    main()
