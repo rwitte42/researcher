@@ -3,8 +3,9 @@
 import sys
 import os
 
-# Add the parent directory to the Python path
+# Add the parent directory and the utils directory to the Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'utils'))
 
 from config.llm_list import LLM_OPTIONS
 from config.config import OPENAI_MODEL
